@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  outlier-detector:
+    image: outlier-detector:latest
+
+  hasher:
+    image: hasher:latest
+
+  hash-saver:
+    image: hash-saver:latest
