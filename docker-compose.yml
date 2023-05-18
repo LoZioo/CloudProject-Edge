@@ -2,10 +2,10 @@ version: "3.8"
 
 services:
   outlier-detector:
-    image: outlier-detector:latest
+    image: lozioo/outlier-detector:latest
 
   hasher:
-    image: hasher:latest
+    image: lozioo/hasher:latest
 
   hash-saver:
-    image: hash-saver:latest
+    image: lozioo/hash-saver:latest
