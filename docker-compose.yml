@@ -4,9 +4,7 @@ services:
   outlier-detector:
     image: lozioo/outlier-detector:latest
     restart: always
-
-    ports:
-      - 1883:1883
+    network_mode: host
 
     environment:
       - MQTT_BROKER=127.0.0.1
