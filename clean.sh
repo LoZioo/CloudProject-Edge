@@ -1,5 +1,4 @@
 #!/bin/bash
-
 cd images
 
 # Include common variables.
