@@ -12,10 +12,10 @@ from os import environ
 from sys import stdout, stderr
 from typing import TextIO
 
-def log(message: str, file: TextIO = stdout, newline: bool = False) -> None:
+def log(message: str, tag: str = "info", file: TextIO = stdout, newline: bool = False) -> None:
 	HOSTNAME = environ["HOSTNAME"] if "HOSTNAME" in environ else "Log"
 
-	print("%s[%s] %s" % ("\n" if newline else "", HOSTNAME, message), file=file)
+	print("%s[%s][%s] %s" % ("\n" if newline else "", HOSTNAME, tag, message), file=file)
 
 # Protocol can be also "websocket".
 client = mqtt.Client(
@@ -36,14 +36,16 @@ def on_subscribe(client: Any, userdata: Any, mid: Any, granted_qos: Any) -> None
 	log("Subscribed to the %s MQTT topic." % MQTT_DATA_TOPIC)
 
 def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
-	log(message.topic)
-	log(str(message.payload))
+	TOPIC = message.topic
+	MESSAGE = message.payload.decode("utf-8")
+
+	log(MESSAGE, tag=TOPIC)
 
 # Graceful shutdown.
 from signal import signal, SIGINT
 
 def graceful_shutdown(signal: int, frame: Any) -> None:
-	log("SIGINT detected, exiting...", stdout, True)
+	log("SIGINT detected, exiting...", newline=True)
 
 	client.loop_stop()
 	client.disconnect()
@@ -64,7 +66,7 @@ if __name__ == "__main__":
 		MQTT_BROKER = environ["MQTT_BROKER"]
 	
 	else:
-		log("MQTT_BROKER envroiment variable not set, aborting.", stderr)
+		log("MQTT_BROKER envroiment variable not set, aborting.", "error", stderr)
 		exit(1)
 
 	# Connect to the broker.
@@ -73,7 +75,7 @@ if __name__ == "__main__":
 		client.connect(MQTT_BROKER)
 
 	except Exception as e:
-		log("Connection to %s failed: %s." % (MQTT_BROKER, e), stderr)
+		log("Connection to %s failed: %s." % (MQTT_BROKER, e), "error", stderr)
 		exit(1)
 
 	# Topic subscriprions.
