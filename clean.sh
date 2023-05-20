@@ -1,10 +1,11 @@
 #!/bin/bash
 
+cd images
+
 # Include common variables.
 source config.sh
 
 docker compose rm -f
-cd images
 
 for image in $(ls -d */ | sed "s/\///g")
 do
