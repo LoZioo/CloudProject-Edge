@@ -4,10 +4,13 @@ services:
   outlier-detector:
     image: lozioo/outlier-detector:latest
     restart: always
-    network_mode: host
+
+    # Now the address "host.docker.internal" represents the host's 127.0.0.1.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     environment:
-      - MQTT_BROKER=127.0.0.1
+      - MQTT_BROKER=host.docker.internal
 
   hasher:
     image: lozioo/hasher:latest
