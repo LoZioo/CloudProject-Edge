@@ -3,6 +3,13 @@ version: "3.8"
 services:
   outlier-detector:
     image: lozioo/outlier-detector:latest
+    restart: always
+
+    ports:
+      - 1883:1883
+
+    environment:
+      - MQTT_BROKER=127.0.0.1
 
   hasher:
     image: lozioo/hasher:latest
