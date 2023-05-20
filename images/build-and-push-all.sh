@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Include common variables.
-source ../config.sh
+source config.sh
 
 for image in $(ls -d */ | sed "s/\///g")
 do
