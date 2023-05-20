@@ -5,8 +5,7 @@ WORKDIR /root
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Common lib and main source code.
-COPY ../common.py .
+# Main source code.
 COPY main.py .
 
 CMD python main.py

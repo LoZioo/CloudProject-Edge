@@ -21,14 +21,3 @@ Executing `./clean.sh` will stop all running containers and will delete the prev
 	docker buildx create --name mybuilder --use --bootstrap
 	```
 6. Simply run `build-and-push-all.sh`.
-
-## Developing with local Python
-1. `cd` into the folder where your application's main.py is.
-2. Exec:
-	```bash
-	pip install -r requirements.txt
-	```
-3. To include the `common.py` file, exec:
-	```bash
-	PYTHONPATH=.. python main.py
-	```
