@@ -16,10 +16,19 @@ Executing `./clean.sh` will stop all running containers and will delete the prev
 2. Install the `docker buildx` plugin (multi-architecture build).
 3. Execute `docker login` and login into your personal Docker Hub account.
 4. Insert your Docker Hub username in `config.sh`.
-
 5. Create a dockerx builder with:
 	```bash
 	docker buildx create --name mybuilder --use --bootstrap
 	```
-
 6. Simply run `build-and-push-all.sh`.
+
+## Developing with local Python
+1. `cd` into the folder where your application's main.py is.
+2. Exec:
+	```bash
+	pip install -r requirements.txt
+	```
+3. To include the `common.py` file, exec:
+	```bash
+	PYTHONPATH=.. python main.py
+	```
