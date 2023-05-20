@@ -1,8 +1,6 @@
 from typing import Any
 import paho.mqtt.client as mqtt
 
-# Global variables.
-
 # Command topic.
 MQTT_REQUEST_TOPIC = "/PowerMonitor"
 
@@ -37,6 +35,10 @@ def on_disconnect(client: Any, userdata: Any, rc: Any) -> None:
 def on_subscribe(client: Any, userdata: Any, mid: Any, granted_qos: Any) -> None:
 	log("Subscribed to the %s MQTT topic." % MQTT_DATA_TOPIC)
 
+def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
+	log(message.topic)
+	log(str(message.payload))
+
 # Graceful shutdown.
 from signal import signal, SIGINT
 
@@ -53,6 +55,7 @@ if __name__ == "__main__":
 	client.on_connect = on_connect
 	client.on_disconnect = on_disconnect
 	client.on_subscribe = on_subscribe
+	client.on_message = on_message
 
 	signal(SIGINT, graceful_shutdown)
 
