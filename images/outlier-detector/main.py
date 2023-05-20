@@ -12,7 +12,7 @@ from os import environ
 from sys import stdout, stderr
 from typing import TextIO
 
-def log(message: str, tag: str = "info", file: TextIO = stdout, newline: bool = False) -> None:
+def log(message: str, tag: str = "Info", file: TextIO = stdout, newline: bool = False) -> None:
 	HOSTNAME = environ["HOSTNAME"] if "HOSTNAME" in environ else "Log"
 
 	print("%s[%s][%s] %s" % ("\n" if newline else "", HOSTNAME, tag, message), file=file)
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 		MQTT_BROKER = environ["MQTT_BROKER"]
 	
 	else:
-		log("MQTT_BROKER envroiment variable not set, aborting.", "error", stderr)
+		log("MQTT_BROKER envroiment variable not set, aborting.", "Error", stderr)
 		exit(1)
 
 	# Connect to the broker.
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 		client.connect(MQTT_BROKER)
 
 	except Exception as e:
-		log("Connection to %s failed: %s." % (MQTT_BROKER, e), "error", stderr)
+		log("Connection to %s failed: %s." % (MQTT_BROKER, e), "Error", stderr)
 		exit(1)
 
 	# Topic subscriprions.
