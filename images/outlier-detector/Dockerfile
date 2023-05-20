@@ -5,6 +5,9 @@ WORKDIR /root
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# Main parameters.
+ENV MQTT_BROKER=127.0.0.1
+
 # Main source code.
 COPY main.py .
 
