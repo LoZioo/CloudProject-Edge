@@ -1,6 +1,14 @@
 from typing import Any
 import paho.mqtt.client as mqtt
 
+# Global variables.
+
+# Command topic.
+MQTT_REQUEST_TOPIC = "/PowerMonitor"
+
+# Telemetry topic.
+MQTT_DATA_TOPIC = "/PowerMonitor/data"
+
 # App log.
 from os import environ
 from sys import stdout, stderr
@@ -23,8 +31,11 @@ client = mqtt.Client(
 def on_connect(client: Any, userdata: Any, flags: Any, rc: Any) -> None:
 	log("Connected to %s!" % MQTT_BROKER)
 
-def on_disconnect(client: Any, userdata: Any, flags: Any) -> None:
+def on_disconnect(client: Any, userdata: Any, rc: Any) -> None:
 	log("Disconnected from %s." % MQTT_BROKER)
+
+def on_subscribe(client: Any, userdata: Any, mid: Any, granted_qos: Any) -> None:
+	log("Subscribed to the %s MQTT topic." % MQTT_DATA_TOPIC)
 
 # Graceful shutdown.
 from signal import signal, SIGINT
@@ -41,6 +52,7 @@ if __name__ == "__main__":
 	# Attach callbacks.
 	client.on_connect = on_connect
 	client.on_disconnect = on_disconnect
+	client.on_subscribe = on_subscribe
 
 	signal(SIGINT, graceful_shutdown)
 
@@ -60,6 +72,9 @@ if __name__ == "__main__":
 	except Exception as e:
 		log("Connection to %s failed: %s." % (MQTT_BROKER, e), stderr)
 		exit(1)
+
+	# Topic subscriprions.
+	client.subscribe(MQTT_DATA_TOPIC)
 
 	# Begin MQTT event loop.
 	client.loop_forever()
