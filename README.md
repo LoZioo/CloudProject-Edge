@@ -3,13 +3,25 @@ Cloud project Edge section repository.
 
 ## Run containers locally
 1. Install the `docker compose` plugin.
-2. Execute:
+2. Start containers:
 	```bash
-	docker compose up
+	docker compose up -d
 	```
 
-## Clean the local envroiment
-Executing `./clean.sh` will stop all running containers and will delete the previously pulled images.
+3. View logs:
+	```bash
+	docker compose logs [ hash-saver | hasher | outliet-detector ]
+	```
+
+4. Stop containers:
+	```bash
+	docker compose kill
+	```
+
+5. Clean the envroiment:
+	```bash
+	docker compose rm -f
+	```
 
 ## Manually build and push images
 1. `cd` into `images` folder.
