@@ -1,12 +1,9 @@
 from typing import Any
 from copy import deepcopy
-
-import paho.mqtt.client as mqtt
 import json
 
-# Containers names (addresses).
-CONTAINER_OUTLIER_DETECTOR = "outlier-detector"
-CONTAINER_HASHER = "hasher"
+# RPC port.
+RPC_PORT = 4090
 
 # Command topic.
 MQTT_REQUEST_TOPIC = "/PowerMonitor"
@@ -18,6 +15,14 @@ MQTT_DATA_TOPIC = "/PowerMonitor/data"
 SAMPLES_T = list[list[float]]
 samples: SAMPLES_T = [[], []]
 
+# Functions
+def samples_remove_peaks(samples: SAMPLES_T) -> SAMPLES_T:
+	for i in range(len(samples)):
+		samples[i].sort()
+		samples[i] = samples[i][OUTLYING_SAMPLES_N:-OUTLYING_SAMPLES_N]
+
+	return samples
+
 # App log.
 from os import environ
 from sys import stdout, stderr
@@ -26,17 +31,14 @@ from typing import TextIO
 def log(message: Any, tag: str = "Info", file: TextIO = stdout, newline: bool = False) -> None:
 	print("%s[%s] %s" % ("\n" if newline else "", tag, message), file=file)
 
-# Functions
-def samples_remove_peaks(samples: SAMPLES_T) -> SAMPLES_T:
-	for i in range(len(samples)):
-		samples[i].sort()
-		samples[i] = samples[i][OUTLYING_SAMPLES_N:-OUTLYING_SAMPLES_N]
+# zerorpc client.
+import zerorpc
+rpc = zerorpc.Client()
 
-	log("Peaks removed.")
-	return samples
+# MQTT configurations (protocol can be also "websocket").
+import paho.mqtt.client as mqtt
 
-# Protocol can be also "websocket".
-client = mqtt.Client(
+mqtt_client = mqtt.Client(
 	client_id = "outlier-detector",
 	transport = "tcp",
 	protocol = mqtt.MQTTv311,
@@ -69,7 +71,21 @@ def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
 				row.clear()
 
 			refined_samples = samples_remove_peaks(samples_copy)
-			log(refined_samples)
+			log("Peaks removed; sending samples to hasher...")
+
+			log(rpc.hello(str(refined_samples)))
+			log("Samples sent.")
+
+			# Example RPC server:
+			# import zerorpc
+
+			# class HelloRPC(object):
+			# 	def hello(self, name):
+			# 		return "Hello, %s" % name
+
+			# s = zerorpc.Server(HelloRPC())
+			# s.bind("tcp://0.0.0.0:4090")
+			# s.run()
 
 # Graceful shutdown.
 from signal import signal, SIGINT
@@ -77,17 +93,17 @@ from signal import signal, SIGINT
 def graceful_shutdown(signal: int, frame: Any) -> None:
 	log("SIGINT detected, exiting...", newline=True)
 
-	client.loop_stop()
-	client.disconnect()
+	mqtt_client.loop_stop()
+	mqtt_client.disconnect()
 
 if __name__ == "__main__":
 	log("I'm the outlier-detector!")
 
 	# Attach callbacks.
-	client.on_connect = on_connect
-	client.on_disconnect = on_disconnect
-	client.on_subscribe = on_subscribe
-	client.on_message = on_message
+	mqtt_client.on_connect = on_connect
+	mqtt_client.on_disconnect = on_disconnect
+	mqtt_client.on_subscribe = on_subscribe
+	mqtt_client.on_message = on_message
 
 	signal(SIGINT, graceful_shutdown)
 
@@ -97,6 +113,15 @@ if __name__ == "__main__":
 
 	else:
 		log("MQTT_BROKER envroiment variable not set, exiting...", "Error", stderr)
+		exit(1)
+
+	# Retrive RPC_ADDRESS envroiment variable and set SAMPLES_LEN_TOT.
+	if "RPC_ADDRESS" in environ:
+		RPC_ADDRESS = environ["RPC_ADDRESS"]
+		RPC_ENDPOINT = "tcp://%s:%d" % (RPC_ADDRESS, RPC_PORT)
+
+	else:
+		log("RPC_ADDRESS envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
 	# Retrive OUTLYING_SAMPLES_N envroiment variable.
@@ -116,10 +141,14 @@ if __name__ == "__main__":
 		log("SAMPLES_LEN envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
+	# Connect to the RPC server.
+	log("RPC endpoint set to \"%s\"." % RPC_ENDPOINT)
+	rpc.connect(RPC_ENDPOINT)
+
 	# Connect to the broker.
 	log("Connecting to %s..." % MQTT_BROKER)
 	try:
-		client.connect(MQTT_BROKER)
+		mqtt_client.connect(MQTT_BROKER)
 
 	except Exception as e:
 		log("Connection to %s failed: %s." % (MQTT_BROKER, e), "Error", stderr)
@@ -127,7 +156,7 @@ if __name__ == "__main__":
 		exit(1)
 
 	# Topic subscriprions.
-	client.subscribe(MQTT_DATA_TOPIC)
+	mqtt_client.subscribe(MQTT_DATA_TOPIC)
 
 	# Begin MQTT event loop.
-	client.loop_forever()
+	mqtt_client.loop_forever()
