@@ -4,6 +4,7 @@ cd images
 # Include common variables.
 source config.sh
 
+docker compose kill
 docker compose rm -f
 
 for image in $(ls -d */ | sed "s/\///g")
