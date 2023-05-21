@@ -13,9 +13,7 @@ from sys import stdout, stderr
 from typing import TextIO
 
 def log(message: str, tag: str = "Info", file: TextIO = stdout, newline: bool = False) -> None:
-	HOSTNAME = environ["HOSTNAME"] if "HOSTNAME" in environ else "Log"
-
-	print("%s[%s][%s] %s" % ("\n" if newline else "", HOSTNAME, tag, message), file=file)
+	print("%s[%s] %s" % ("\n" if newline else "", tag, message), file=file)
 
 # Protocol can be also "websocket".
 client = mqtt.Client(
