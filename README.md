@@ -16,12 +16,10 @@ Cloud project Edge section repository.
 4. Stop containers:
 	```bash
 	docker compose kill
-	```
-
-5. Clean the envroiment:
-	```bash
 	docker compose rm -f
 	```
+
+5. Clean the envroiment: just run `clean.sh`.
 
 ## Manually build and push images
 1. `cd` into `images` folder.
