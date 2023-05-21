@@ -1,10 +1,13 @@
 from typing import Any
+from copy import deepcopy
+
 import paho.mqtt.client as mqtt
 import json
 
 # Envroiment vaiables:
-# MQTT_BROKER: str =		IP address of the MQTT Broker.
-# SAMPLES_LEN: int =		Trigger transmission routine on that defined len(data).
+# MQTT_BROKER: str =				IP address of the MQTT Broker.
+# SAMPLES_LEN: int =				Trigger transmission routine on that defined len(data).
+# OUTLYING_SAMPLES_N: int =	Sample (SAMPLES_LEN + 2 * OUTLYING_SAMPLES_N) samples, sort the list and remove OUTLYING_SAMPLES_N from the left and right.
 
 # Command topic.
 MQTT_REQUEST_TOPIC = "/PowerMonitor"
@@ -13,8 +16,8 @@ MQTT_REQUEST_TOPIC = "/PowerMonitor"
 MQTT_DATA_TOPIC = "/PowerMonitor/data"
 
 # VA and W array.
-SAMPLES_T = list[tuple[float, float]]
-samples: SAMPLES_T = []
+SAMPLES_T = list[list[float]]
+samples: SAMPLES_T = [[], []]
 
 # App log.
 from os import environ
@@ -25,8 +28,13 @@ def log(message: Any, tag: str = "Info", file: TextIO = stdout, newline: bool = 
 	print("%s[%s] %s" % ("\n" if newline else "", tag, message), file=file)
 
 # Functions
-def handle_samples(samples: SAMPLES_T) -> None:
-	log(samples, "Samples")
+def samples_remove_peaks(samples: SAMPLES_T) -> SAMPLES_T:
+	for i in range(len(samples)):
+		samples[i].sort()
+		samples[i] = samples[i][OUTLYING_SAMPLES_N:-OUTLYING_SAMPLES_N]
+
+	log("Peaks removed.")
+	return samples
 
 # Protocol can be also "websocket".
 client = mqtt.Client(
@@ -51,18 +59,18 @@ def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
 	MESSAGE = message.payload.decode("utf-8")
 
 	if TOPIC == MQTT_DATA_TOPIC:
-		samples.append((
-			json.loads(MESSAGE)["p"]["VA"],
-			json.loads(MESSAGE)["p"]["W"]
-		))
+		samples[0].append(json.loads(MESSAGE)["p"]["VA"])
+		samples[1].append(json.loads(MESSAGE)["p"]["W"])
 
-		if len(samples) == SAMPLES_LEN:
+		if len(samples[0]) == SAMPLES_LEN_TOT:
 			log("Reached pefixed len of %d samples." % SAMPLES_LEN, "Trigger")
 
-			samples_copy = samples.copy()
-			samples.clear()
+			samples_copy = deepcopy(samples)
+			for row in samples:
+				row.clear()
 
-			handle_samples(samples_copy)
+			refined_samples = samples_remove_peaks(samples_copy)
+			log(refined_samples)
 
 # Graceful shutdown.
 from signal import signal, SIGINT
@@ -92,9 +100,18 @@ if __name__ == "__main__":
 		log("MQTT_BROKER envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
-	# Retrive SAMPLES_LEN envroiment variable.
+	# Retrive OUTLYING_SAMPLES_N envroiment variable.
+	if "OUTLYING_SAMPLES_N" in environ:
+		OUTLYING_SAMPLES_N = int(environ["OUTLYING_SAMPLES_N"])
+
+	else:
+		log("OUTLYING_SAMPLES_N envroiment variable not set, exiting...", "Error", stderr)
+		exit(1)
+
+	# Retrive SAMPLES_LEN envroiment variable and set SAMPLES_LEN_TOT.
 	if "SAMPLES_LEN" in environ:
 		SAMPLES_LEN = int(environ["SAMPLES_LEN"])
+		SAMPLES_LEN_TOT = SAMPLES_LEN + 2 * OUTLYING_SAMPLES_N
 
 	else:
 		log("SAMPLES_LEN envroiment variable not set, exiting...", "Error", stderr)
