@@ -65,6 +65,7 @@ if __name__ == "__main__":
 	
 	else:
 		log("MQTT_BROKER envroiment variable not set, aborting.", "Error", stderr)
+		log("Exiting...")
 		exit(1)
 
 	# Connect to the broker.
@@ -74,6 +75,7 @@ if __name__ == "__main__":
 
 	except Exception as e:
 		log("Connection to %s failed: %s." % (MQTT_BROKER, e), "Error", stderr)
+		log("Exiting...")
 		exit(1)
 
 	# Topic subscriprions.
