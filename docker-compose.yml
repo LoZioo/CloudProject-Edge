@@ -5,6 +5,7 @@ services:
     image: lozioo/outlier-detector:latest
     restart: always
 
+    # Needed for printing logs.
     stdin_open: true  # docker run -i
     tty: true         # docker run -t
 
@@ -19,6 +20,20 @@ services:
 
   hasher:
     image: lozioo/hasher:latest
+    restart: always
+
+    stdin_open: true
+    tty: true
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   hash-saver:
     image: lozioo/hash-saver:latest
+    restart: always
+
+    stdin_open: true
+    tty: true
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
