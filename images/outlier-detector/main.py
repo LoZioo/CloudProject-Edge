@@ -4,11 +4,6 @@ from copy import deepcopy
 import paho.mqtt.client as mqtt
 import json
 
-# Envroiment vaiables:
-# MQTT_BROKER: str =				IP address of the MQTT Broker.
-# SAMPLES_LEN: int =				Trigger transmission routine on that defined len(data).
-# OUTLYING_SAMPLES_N: int =	Sample (SAMPLES_LEN + 2 * OUTLYING_SAMPLES_N) samples, sort the list and remove OUTLYING_SAMPLES_N from the left and right.
-
 # Containers names (addresses).
 CONTAINER_OUTLIER_DETECTOR = "outlier-detector"
 CONTAINER_HASHER = "hasher"

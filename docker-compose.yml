@@ -14,9 +14,9 @@ services:
       - "host.docker.internal:host-gateway"
 
     environment:
-      - MQTT_BROKER=host.docker.internal
-      - SAMPLES_LEN=2
-      - OUTLYING_SAMPLES_N=1
+      - MQTT_BROKER=host.docker.internal    # str:  IP address of the MQTT Broker.
+      - SAMPLES_LEN=2                       # int:  Trigger transmission routine on that defined len(data).
+      - OUTLYING_SAMPLES_N=1                # int:  (SAMPLES_LEN + 2 * OUTLYING_SAMPLES_N) samples, sort the list and remove OUTLYING_SAMPLES_N from the left and right.
 
   hasher:
     image: lozioo/hasher:latest
