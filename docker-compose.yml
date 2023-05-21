@@ -5,6 +5,9 @@ services:
     image: lozioo/outlier-detector:latest
     restart: always
 
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+
     # Now the address "host.docker.internal" represents the host's 127.0.0.1.
     extra_hosts:
       - "host.docker.internal:host-gateway"
