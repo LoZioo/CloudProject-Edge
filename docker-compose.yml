@@ -11,8 +11,8 @@ services:
 
     environment:
       - MQTT_BROKER=host.docker.internal
-      - SAMPLES_LEN=3
-      - OUTLYING_SAMPLES_N=3
+      - SAMPLES_LEN=2
+      - OUTLYING_SAMPLES_N=1
 
   hasher:
     image: lozioo/hasher:latest
