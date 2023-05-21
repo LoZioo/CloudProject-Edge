@@ -9,6 +9,10 @@ import json
 # SAMPLES_LEN: int =				Trigger transmission routine on that defined len(data).
 # OUTLYING_SAMPLES_N: int =	Sample (SAMPLES_LEN + 2 * OUTLYING_SAMPLES_N) samples, sort the list and remove OUTLYING_SAMPLES_N from the left and right.
 
+# Containers names (addresses).
+CONTAINER_OUTLIER_DETECTOR = "outlier-detector"
+CONTAINER_HASHER = "hasher"
+
 # Command topic.
 MQTT_REQUEST_TOPIC = "/PowerMonitor"
 
