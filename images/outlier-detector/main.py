@@ -62,7 +62,7 @@ if __name__ == "__main__":
 	# Retrive MQTT_BROKER envroiment variable.
 	if "MQTT_BROKER" in environ:
 		MQTT_BROKER = environ["MQTT_BROKER"]
-	
+
 	else:
 		log("MQTT_BROKER envroiment variable not set, aborting.", "Error", stderr)
 		log("Exiting...")
