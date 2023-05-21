@@ -27,13 +27,3 @@ services:
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-  hash-saver:
-    image: lozioo/hash-saver:latest
-    restart: always
-
-    stdin_open: true
-    tty: true
-
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
