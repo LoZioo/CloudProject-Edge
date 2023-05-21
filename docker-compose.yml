@@ -15,6 +15,7 @@ services:
 
     environment:
       - MQTT_BROKER=host.docker.internal    # str:  IP address of the MQTT Broker.
+      - RPC_ADDRESS=hasher                  # str:  IP address of the RPC hasher service.
       - SAMPLES_LEN=2                       # int:  Trigger transmission routine on that defined len(data).
       - OUTLYING_SAMPLES_N=1                # int:  (SAMPLES_LEN + 2 * OUTLYING_SAMPLES_N) samples, sort the list and remove OUTLYING_SAMPLES_N from the left and right.
 
