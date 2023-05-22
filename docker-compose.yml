@@ -36,4 +36,4 @@ services:
 
     environment:
       - RPC_ADDRESS=0.0.0.0                 # str:  IP address where the RPC server listens for incoming connections.
-      - DB_FILE = "./data/hash.db.txt"      # str:  Local DB file path.
+      - DB_FILE="./data/hash.db.txt"      # str:  Local DB file path.
