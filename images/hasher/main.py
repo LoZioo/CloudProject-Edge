@@ -66,13 +66,21 @@ if __name__ == "__main__":
 	# Attach the graceful shutdown callback.
 	signal(SIGINT, graceful_shutdown)
 
-	# Retrive RPC_ADDRESS envroiment variable..
+	# Retrive RPC_ADDRESS envroiment variable.
 	if "RPC_ADDRESS" in environ:
 		RPC_ADDRESS = environ["RPC_ADDRESS"]
 		RPC_ENDPOINT = "tcp://%s:%d" % (RPC_ADDRESS, RPC_PORT)
 
 	else:
 		log("RPC_ADDRESS envroiment variable not set, exiting...", "Error", stderr)
+		exit(1)
+
+	# Retrive DB_FILE envroiment variable.
+	if "DB_FILE" in environ:
+		DB_FILE = environ["DB_FILE"]
+
+	else:
+		log("DB_FILE envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
 	# Run the RPC server (a daemon thread is killed when the main has been executed entirely).
@@ -98,5 +106,6 @@ if __name__ == "__main__":
 		block["hash"] = sha256(json.dumps(block).encode("utf-8")).hexdigest()
 		hashed_block = json.dumps(block)
 
-		log("Saving the resulted block...")
-		log(hashed_block)
+		log("Saving the resulted block.")
+		with open(DB_FILE, "a") as db:
+			db.write("%s\n" % block["hash"])
