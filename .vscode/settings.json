@@ -3,6 +3,7 @@
 	"python.analysis.diagnosticSeverityOverrides": {
 		"reportMissingModuleSource": "information",
 		"reportMissingTypeStubs": "information",
-		"reportUnknownMemberType": "information"
+		"reportUnknownMemberType": "information",
+		"reportUnusedImport": "warning"
 	}
 }
