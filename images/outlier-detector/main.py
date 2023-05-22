@@ -73,19 +73,8 @@ def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
 			refined_samples = samples_remove_peaks(samples_copy)
 			log("Peaks removed; sending samples to hasher...")
 
-			log(rpc.hello(str(refined_samples)))
+			rpc.send_samples(refined_samples)
 			log("Samples sent.")
-
-			# Example RPC server:
-			# import zerorpc
-
-			# class HelloRPC(object):
-			# 	def hello(self, name):
-			# 		return "Hello, %s" % name
-
-			# s = zerorpc.Server(HelloRPC())
-			# s.bind("tcp://0.0.0.0:4090")
-			# s.run()
 
 # Graceful shutdown.
 from signal import signal, SIGINT
@@ -117,7 +106,7 @@ if __name__ == "__main__":
 		log("MQTT_BROKER envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
-	# Retrive RPC_ADDRESS envroiment variable and set SAMPLES_LEN_TOT.
+	# Retrive RPC_ADDRESS envroiment variable.
 	if "RPC_ADDRESS" in environ:
 		RPC_ADDRESS = environ["RPC_ADDRESS"]
 		RPC_ENDPOINT = "tcp://%s:%d" % (RPC_ADDRESS, RPC_PORT)
