@@ -1,7 +1,5 @@
 from typing import TypedDict, Any
 from hashlib import sha256
-from threading import Thread
-from queue import Queue
 
 import json
 
@@ -26,6 +24,8 @@ def log(message: Any, tag: str = "Info", file: TextIO = stdout, newline: bool = 
 	print("%s[%s] %s" % ("\n" if newline else "", tag, message), file=file)
 
 # IPC
+from queue import Queue
+
 q: Queue[SAMPLES_T] = Queue()
 
 # zerorpc server.
@@ -41,7 +41,9 @@ class RPC_callbacks(object):
 		return True
 
 # Threads.
-def thread_RPC() -> None:
+from threading import Thread
+
+def thread_RPC_receiver() -> None:
 	log("RPC server listening on %s." % RPC_ENDPOINT)
 
 	rpc = zerorpc.Server(RPC_callbacks())
@@ -71,7 +73,7 @@ if __name__ == "__main__":
 		exit(1)
 
 	# Run the RPC server (a daemon thread is killed when the main has been executed entirely).
-	rpc_thread = Thread(target=thread_RPC, daemon=True)
+	rpc_thread = Thread(target=thread_RPC_receiver, daemon=True)
 	rpc_thread.start()
 
 	# Await for samples from rpc_thread.

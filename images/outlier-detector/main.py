@@ -1,5 +1,6 @@
 from typing import Any
 from copy import deepcopy
+
 import json
 
 # RPC port.
@@ -31,9 +32,31 @@ from typing import TextIO
 def log(message: Any, tag: str = "Info", file: TextIO = stdout, newline: bool = False) -> None:
 	print("%s[%s] %s" % ("\n" if newline else "", tag, message), file=file)
 
-# zerorpc client.
+# IPC
+from queue import Queue
+
+q: Queue[SAMPLES_T] = Queue()
+
+# Threads anc zerorpc client.
+from threading import Thread
 import zerorpc
-rpc = zerorpc.Client()
+
+def thread_RPC_sender() -> None:
+	log("RPC endpoint set to \"%s\"." % RPC_ENDPOINT)
+
+	rpc = zerorpc.Client()
+	rpc.connect(RPC_ENDPOINT)
+
+	# Wait for samples; then connect to the RPC server and send everything.
+	while True:
+		samples = q.get()
+		log("Samples received through the queue.", "Trigger")
+
+		refined_samples = samples_remove_peaks(samples)
+		log("Peaks removed; sending samples to hasher...")
+
+		rpc.send_samples(refined_samples)
+		log("Samples sent.")
 
 # MQTT configurations (protocol can be also "websocket").
 import paho.mqtt.client as mqtt
@@ -70,11 +93,8 @@ def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
 			for row in samples:
 				row.clear()
 
-			refined_samples = samples_remove_peaks(samples_copy)
-			log("Peaks removed; sending samples to hasher...")
-
-			rpc.send_samples(refined_samples)
-			log("Samples sent.")
+			log("Sending samples through the queue.", "Trigger")
+			q.put(samples_copy)
 
 # Graceful shutdown.
 from signal import signal, SIGINT
@@ -84,8 +104,6 @@ def graceful_shutdown(signal: int, frame: Any) -> None:
 
 	mqtt_client.loop_stop()
 	mqtt_client.disconnect()
-
-	rpc.close()
 
 if __name__ == "__main__":
 	log("I'm the outlier-detector!")
@@ -132,10 +150,6 @@ if __name__ == "__main__":
 		log("SAMPLES_LEN envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
-	# Connect to the RPC server.
-	log("RPC endpoint set to \"%s\"." % RPC_ENDPOINT)
-	rpc.connect(RPC_ENDPOINT)
-
 	# Connect to the broker.
 	log("Connecting to %s..." % MQTT_BROKER)
 	try:
@@ -149,5 +163,9 @@ if __name__ == "__main__":
 	# Topic subscriprions.
 	mqtt_client.subscribe(MQTT_DATA_TOPIC)
 
-	# Begin MQTT event loop.
+	# Run the RPC client (a daemon thread is killed when the main has been executed entirely).
+	rpc_thread = Thread(target=thread_RPC_sender, daemon=True)
+	rpc_thread.start()
+
+	# Begin MQTT event loop (blocking function).
 	mqtt_client.loop_forever()
