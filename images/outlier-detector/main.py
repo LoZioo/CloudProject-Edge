@@ -53,10 +53,11 @@ def thread_RPC_sender() -> None:
 		log("Samples received through the queue.", "Trigger")
 
 		refined_samples = samples_remove_peaks(samples)
-		log("Peaks removed; sending samples to hasher...")
+		log("Peaks removed")
 
+		log("Invoking hasher via RPC.")
 		rpc.send_samples(refined_samples)
-		log("Samples sent.")
+		log("RPC executed.")
 
 # MQTT configurations (protocol can be also "websocket").
 import paho.mqtt.client as mqtt
