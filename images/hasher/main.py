@@ -1,4 +1,5 @@
 from typing import TypedDict, Any
+from datetime import datetime, timezone
 from hashlib import sha256
 
 import json
@@ -11,9 +12,11 @@ SAMPLES_T = list[list[float]]
 
 # Cloud block.
 class CLOUDBLOCK_T(TypedDict):
-	VA:		list[float]
-	W:		list[float]
-	hash:	str
+	VA:					list[float]
+	W:					list[float]
+
+	timestamp:	str
+	hash:				str
 
 # App log.
 from os import environ
@@ -79,6 +82,21 @@ if __name__ == "__main__":
 	# Await for samples from rpc_thread.
 	while True:
 		samples = q.get()
-
 		log("Samples received through the queue.", "Trigger")
-		log(samples)
+
+		block: CLOUDBLOCK_T = {
+			"VA":	samples[0],
+			"W":	samples[1],
+
+			# Timestamp in UTC (Zulu) ISO 8601.
+			"timestamp":	datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+
+			# Hash is computed by initially evaluating the empty string.
+			"hash":	""
+		}
+
+		block["hash"] = sha256(json.dumps(block).encode("utf-8")).hexdigest()
+		hashed_block = json.dumps(block)
+
+		log("Saving the resulted block...")
+		log(hashed_block)
