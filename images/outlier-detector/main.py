@@ -151,12 +151,12 @@ if __name__ == "__main__":
 		exit(1)
 
 	# Connect to the broker.
-	log("Connecting to %s..." % MQTT_BROKER)
+	log("Connecting to mqtt://%s:1883..." % MQTT_BROKER)
 	try:
 		mqtt_client.connect(MQTT_BROKER)
 
 	except Exception as e:
-		log("Connection to %s failed: %s." % (MQTT_BROKER, e), "Error", stderr)
+		log("Connection to mqtt://%s:1883 failed: %s." % (MQTT_BROKER, e), "Error", stderr)
 		log("Exiting...")
 		exit(1)
 
