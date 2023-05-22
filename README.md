@@ -31,3 +31,6 @@ Cloud project Edge section repository.
 	docker buildx create --name mybuilder --use --bootstrap
 	```
 6. Simply run `build-and-push-all.sh`.
+
+## Local Database (text) file.
+You will find a local copy of the blocks'hashes inside the [data](data) folder.

@@ -29,5 +29,10 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+    volumes:
+      - type: bind
+        source: ./data
+        target: /root/data
+
     environment:
       - RPC_ADDRESS=0.0.0.0                 # str:  IP address where the RPC server listens for incoming connections.
