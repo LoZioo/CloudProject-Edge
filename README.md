@@ -32,5 +32,5 @@ Cloud project Edge section repository.
 	```
 6. Simply run `build-and-push-all.sh`.
 
-## Local Database (text) file.
+## Local Database (text) file
 You will find a local copy of the blocks'hashes inside the [data](data) folder.
