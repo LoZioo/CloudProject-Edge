@@ -98,7 +98,7 @@ def on_message(client: Any, userdata: Any, message: mqtt.MQTTMessage) -> None:
 			q.put(samples_copy)
 
 # Graceful shutdown.
-from signal import signal, SIGINT
+from signal import signal, SIGINT, SIGTERM
 
 def graceful_shutdown(signal: int, frame: Any) -> None:
 	log("SIGINT detected, exiting...", newline=True)
@@ -116,6 +116,7 @@ if __name__ == "__main__":
 	mqtt_client.on_message = on_message
 
 	signal(SIGINT, graceful_shutdown)
+	signal(SIGTERM, graceful_shutdown)
 
 	# Retrive MQTT_BROKER envroiment variable.
 	if "MQTT_BROKER" in environ:
