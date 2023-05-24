@@ -2,24 +2,25 @@
 Cloud project Edge section repository.
 
 ## Run containers locally
-1. Install the `docker compose` plugin.
-2. Execute:
+1. Put your personal `clouds.yaml` openstack credentials file inside the [data](data) folder.
+2. Install the `docker compose` plugin.
+3. Execute:
 	```
 	docker compose up
 	```
 
-3. View logs:
+4. View logs:
 	```
 	docker compose logs [ hash-saver | hasher | outliet-detector ]
 	```
 
-4. Stop containers:
+5. Stop containers:
 	```
 	docker compose kill
 	docker compose rm -f
 	```
 
-5. Clean the envroiment: just run `clean.sh`; executing that script will stop all running containers and will delete the previously pulled images.
+6. Clean the envroiment: just run `clean.sh`; executing that script will stop all running containers and will delete the previously pulled images.
 
 ## Manually build and push images
 1. `cd` into `images` folder.
