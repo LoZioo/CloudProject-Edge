@@ -98,6 +98,14 @@ if __name__ == "__main__":
 		log("DB_FILE envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
+	# Retrive OPENSTACK_CLOUD_YAML envroiment variable.
+	if "OPENSTACK_CLOUD_YAML" in environ:
+		OPENSTACK_CLOUD_YAML = environ["OPENSTACK_CLOUD_YAML"]
+
+	else:
+		log("OPENSTACK_CLOUD_YAML envroiment variable not set, exiting...", "Error", stderr)
+		exit(1)
+
 	# Retrive OPENSTACK_CONTAINER_NAME envroiment variable.
 	if "OPENSTACK_CONTAINER_NAME" in environ:
 		OPENSTACK_CONTAINER_NAME = environ["OPENSTACK_CONTAINER_NAME"]
@@ -113,7 +121,7 @@ if __name__ == "__main__":
 
 	log("Connecting to the openstack cloud.")
 	try:
-		garr = connection.Connection("openstack")
+		garr = connection.Connection("openstack", config_files=OPENSTACK_CLOUD_YAML)
 
 	except Exception as e:
 		log("openstack connection failed: %s" % e, "Error", stderr)
