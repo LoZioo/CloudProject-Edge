@@ -36,4 +36,5 @@ services:
 
     environment:
       - RPC_ADDRESS=0.0.0.0                 # str:  IP address where the RPC server listens for incoming connections.
+      - BLOCKCHAIN_ADDRESS=90.147.185.8     # str:  IP address of the blockchain.
       - DB_FILE=./data/hash.db.txt          # str:  Local DB file path.

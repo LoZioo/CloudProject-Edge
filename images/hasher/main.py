@@ -2,10 +2,13 @@ from typing import TypedDict, Any
 from datetime import datetime, timezone
 from hashlib import sha256
 
-import json
+import json, requests
 
 # RPC port.
 RPC_PORT = 4090
+
+# Blockchain port.
+BLOCKCHAIN_PORT = 5090
 
 # Same type of outlier-detector.
 samples_t = list[list[float]]
@@ -75,6 +78,15 @@ if __name__ == "__main__":
 		log("RPC_ADDRESS envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
+	# Retrive BLOCKCHAIN_ADDRESS envroiment variable.
+	if "BLOCKCHAIN_ADDRESS" in environ:
+		BLOCKCHAIN_ADDRESS = environ["BLOCKCHAIN_ADDRESS"]
+		BLOCKCHAIN_ENDPOINT = "http://%s:%d" % (BLOCKCHAIN_ADDRESS, BLOCKCHAIN_PORT)
+
+	else:
+		log("BLOCKCHAIN_ADDRESS envroiment variable not set, exiting...", "Error", stderr)
+		exit(1)
+
 	# Retrive DB_FILE envroiment variable.
 	if "DB_FILE" in environ:
 		DB_FILE = environ["DB_FILE"]
@@ -104,8 +116,25 @@ if __name__ == "__main__":
 		}
 
 		block["hash"] = sha256(json.dumps(block).encode("utf-8")).hexdigest()
-		hashed_block = json.dumps(block)
 
 		log("Saving the resulted block.")
 		with open(DB_FILE, "a") as db:
 			db.write("%s\n" % block["hash"])
+
+		log("Sending the resulting block to the blockchain.")
+
+		headers = {
+			"Content-Type": "application/json"
+		}
+
+		try:
+			res = requests.post(BLOCKCHAIN_ENDPOINT + "/block/add", data=json.dumps(block), headers=headers)
+			if res.status_code != 200:
+				raise
+
+			elif res.status_code == 200:
+				log("Block sent successfully!")
+
+		except:
+			log("An error occurred while sending the block.", "Error", stderr)
+			pass
