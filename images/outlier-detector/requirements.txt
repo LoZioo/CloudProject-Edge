@@ -1,2 +1,2 @@
-paho-mqtt
-zerorpc
+paho-mqtt==1.6.1
+zerorpc==0.6.3
