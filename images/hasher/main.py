@@ -8,10 +8,10 @@ import json
 RPC_PORT = 4090
 
 # Same type of outlier-detector.
-SAMPLES_T = list[list[float]]
+samples_t = list[list[float]]
 
 # Cloud block.
-class CLOUDBLOCK_T(TypedDict):
+class cloudblock_t(TypedDict):
 	VA:					list[float]
 	W:					list[float]
 
@@ -29,13 +29,13 @@ def log(message: Any, tag: str = "Info", file: TextIO = stdout, newline: bool = 
 # IPC
 from queue import Queue
 
-q: Queue[SAMPLES_T] = Queue()
+q: Queue[samples_t] = Queue()
 
 # zerorpc server.
 import zerorpc
 
 class RPC_callbacks(object):
-	def send_samples(self, samples: SAMPLES_T) -> bool:
+	def send_samples(self, samples: samples_t) -> bool:
 		log("Samples received.")
 
 		log("Sending samples through the queue.", "Trigger")
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 		samples = q.get()
 		log("Samples received through the queue.", "Trigger")
 
-		block: CLOUDBLOCK_T = {
+		block: cloudblock_t = {
 			"VA":	samples[0],
 			"W":	samples[1],
 

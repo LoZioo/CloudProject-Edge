@@ -13,11 +13,11 @@ MQTT_REQUEST_TOPIC = "/PowerMonitor"
 MQTT_DATA_TOPIC = "/PowerMonitor/data"
 
 # VA and W array.
-SAMPLES_T = list[list[float]]
-samples: SAMPLES_T = [[], []]
+samples_t = list[list[float]]
+samples: samples_t = [[], []]
 
 # Functions
-def samples_remove_peaks(samples: SAMPLES_T) -> SAMPLES_T:
+def samples_remove_peaks(samples: samples_t) -> samples_t:
 	for i in range(len(samples)):
 		samples[i].sort()
 		samples[i] = samples[i][OUTLYING_SAMPLES_N:-OUTLYING_SAMPLES_N]
@@ -35,7 +35,7 @@ def log(message: Any, tag: str = "Info", file: TextIO = stdout, newline: bool = 
 # IPC
 from queue import Queue
 
-q: Queue[SAMPLES_T] = Queue()
+q: Queue[samples_t] = Queue()
 
 # Threads anc zerorpc client.
 from threading import Thread
