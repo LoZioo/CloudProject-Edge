@@ -172,7 +172,7 @@ if __name__ == "__main__":
 				container=OPENSTACK_CONTAINER_NAME,
 
 				name="%s.json" % block["timestamp"],
-				data=block_no_hash,
+				data=json.dumps(block_no_hash),
 
 				sha256=block["hash"]
 			)
