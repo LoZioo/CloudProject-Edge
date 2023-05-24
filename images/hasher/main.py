@@ -1,6 +1,7 @@
 from typing import TypedDict, Any
 from datetime import datetime, timezone
 from hashlib import sha256
+from openstack import connection
 
 import json, requests
 
@@ -61,6 +62,8 @@ from signal import signal, SIGINT
 
 def graceful_shutdown(signal: int, frame: Any) -> None:
 	log("SIGINT detected, exiting...", newline=True)
+
+	garr.close()
 	exit(0)
 
 if __name__ == "__main__":
@@ -95,15 +98,33 @@ if __name__ == "__main__":
 		log("DB_FILE envroiment variable not set, exiting...", "Error", stderr)
 		exit(1)
 
+	# Retrive OPENSTACK_CONTAINER_NAME envroiment variable.
+	if "OPENSTACK_CONTAINER_NAME" in environ:
+		OPENSTACK_CONTAINER_NAME = environ["OPENSTACK_CONTAINER_NAME"]
+
+	else:
+		log("OPENSTACK_CONTAINER_NAME envroiment variable not set, exiting...", "Error", stderr)
+		exit(1)
+
 	# Run the RPC server (a daemon thread is killed when the main has been executed entirely).
+	log("Starting the RPC server.")
 	rpc_thread = Thread(target=thread_RPC_receiver, daemon=True)
 	rpc_thread.start()
+
+	log("Connecting to the openstack cloud.")
+	try:
+		garr = connection.Connection("openstack")
+
+	except Exception as e:
+		log("openstack connection failed: %s" % e, "Error", stderr)
+		exit(1)
 
 	# Await for samples from rpc_thread.
 	while True:
 		samples = q.get()
 		log("Samples received through the queue.", "Trigger")
 
+		# Compute block.
 		block: cloudblock_t = {
 			"VA":	samples[0],
 			"W":	samples[1],
@@ -117,10 +138,12 @@ if __name__ == "__main__":
 
 		block["hash"] = sha256(json.dumps(block).encode("utf-8")).hexdigest()
 
+		# Local hash saving.
 		log("Saving the resulted block.")
 		with open(DB_FILE, "a") as db:
 			db.write("%s\n" % block["hash"])
 
+		# Blockchain sending.
 		log("Sending the resulting block to the blockchain.")
 
 		headers = {
@@ -135,6 +158,24 @@ if __name__ == "__main__":
 			elif res.status_code == 200:
 				log("Block sent successfully!")
 
-		except:
-			log("An error occurred while sending the block.", "Error", stderr)
-			pass
+		except Exception as e:
+			log("An error occurred while sending the block to the blockchain: %s." % e, "Error", stderr)
+
+		# Container sending.
+		log("Sending the resulting block to the openstack container.")
+
+		block_no_hash: Any = block.copy()
+		del block_no_hash["hash"]
+
+		try:
+			garr.create_object(
+				container=OPENSTACK_CONTAINER_NAME,
+
+				name="%s.json" % block["timestamp"],
+				data=block_no_hash,
+
+				sha256=block["hash"]
+			)
+
+		except Exception as e:
+			log("An error occurred while sending the block to the openstack container: %s." % e, "Error", stderr)
