@@ -5,6 +5,9 @@ WORKDIR /root
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# openstack configuration file.
+RUN ln -s ./data/clouds.yaml
+
 # Main source code.
 COPY main.py .
 
