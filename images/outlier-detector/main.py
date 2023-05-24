@@ -106,6 +106,8 @@ def graceful_shutdown(signal: int, frame: Any) -> None:
 	mqtt_client.loop_stop()
 	mqtt_client.disconnect()
 
+	exit(0)
+
 if __name__ == "__main__":
 	log("I'm the outlier-detector!")
 
