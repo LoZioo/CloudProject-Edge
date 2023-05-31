@@ -5,5 +5,6 @@
 		"reportMissingTypeStubs": "information",
 		"reportUnknownMemberType": "information",
 		"reportUnusedImport": "warning"
-	}
+	},
+	"ansible.python.interpreterPath": "/home/lozio/.pyenv/versions/3.11.3/envs/dirty/bin/python"
 }

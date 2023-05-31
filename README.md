@@ -23,7 +23,7 @@ Cloud project Edge section repository.
 6. Clean the envroiment: just run `clean.sh`; executing that script will stop all running containers and will delete the previously pulled images.
 
 ## Manually build and push images
-1. `cd` into `images` folder.
+1. `cd` into `services` folder.
 2. Install the `docker buildx` plugin (multi-architecture build).
 3. Execute `docker login` and login into your personal Docker Hub account.
 4. Insert your Docker Hub username in `config.sh`.
