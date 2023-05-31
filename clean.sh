@@ -1,5 +1,5 @@
 #!/bin/bash
-cd images
+cd services
 
 # Include common variables.
 source config.sh
