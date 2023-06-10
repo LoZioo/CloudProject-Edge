@@ -164,17 +164,12 @@ if __name__ == "__main__":
 		# Container sending.
 		log("Sending the resulting block to the openstack container.")
 
-		block_no_hash: Any = block.copy()
-		del block_no_hash["hash"]
-
 		try:
 			garr.create_object(
 				container=OPENSTACK_CONTAINER_NAME,
 
 				name="%s.json" % block["timestamp"],
-				data=json.dumps(block_no_hash),
-
-				sha256=block["hash"]
+				data=json.dumps(block)
 			)
 
 		except Exception as e:
